@@ -1,0 +1,226 @@
+options {
+  STATIC = false;
+}
+
+PARSER_BEGIN(Parser)
+
+package org.barlas.complex.parser;
+
+import java.util.List;
+import java.util.ArrayList;
+
+public class Parser {
+
+  public static void main(String args[]) throws ParseException {
+    Parser parser = new Parser(System.in);
+    parser.Root();
+  }
+
+}
+
+PARSER_END(Parser)
+
+SKIP :
+{
+  " " | "\t" | "\n" | "\r"
+}
+
+Statement Root() :
+{
+  Statement stmt;
+  List<Statement> list = new ArrayList<Statement>();
+}
+{
+  ( ( stmt = AssignmentStatement() { list.add( stmt ); } | stmt = IfStatement() { list.add( stmt ); } | stmt = ForStatement() { list.add( stmt ); })* stmt = ReturnStatement() { list.add( stmt ); } <EOF> )
+  { return new BlockStatement( list ); }
+}
+
+Statement Statement() :
+{
+  Statement stmt;
+}
+{
+  ( stmt = AssignmentStatement() | stmt = IfStatement() | stmt = ForStatement() | stmt = ReturnStatement() | stmt = BlockStatement() ) { return stmt; }
+}
+
+Statement AssignmentStatement() :
+{
+  String name;
+  Expression expr;
+}
+{
+  ( <ID> { name = token.image; } "=" expr = Expression() ";" )
+  { return new AssignmentStatement( name, expr ); }
+}
+
+Statement IfStatement() :
+{
+  Expression condition;
+  Statement stmt;
+}
+{
+  ( "if" "(" condition = Expression() ")" stmt = Statement() )
+  { return new IfStatement( condition, stmt ); }
+}
+
+Statement ForStatement() :
+{
+  Statement stmt;
+  String name;
+  int from;
+  int to;
+}
+{
+  ( "for" "(" <ID> { name = token.image; } "in" <INTEGER> { from = Integer.parseInt( token.image ); } ".." <INTEGER> { to = Integer.parseInt( token.image ); } ")" stmt = Statement() )
+  { return new ForStatement(name, from, to, stmt); }
+}
+
+Statement ReturnStatement() :
+{
+  Expression expr;
+  List<Expression> list = new ArrayList<Expression>();
+}
+{
+  ( "return" expr = Expression() { list.add( expr ); } ( "," expr = Expression() { list.add( expr ); } )* ";" )
+  { return new ReturnStatement( list ); }
+}
+
+Statement BlockStatement() :
+{
+  Statement stmt;
+  List<Statement> list = new ArrayList<Statement>();
+}
+{
+  ( "{" ( stmt = Statement() { list.add( stmt ); } )* "}" ) { return new BlockStatement( list ); }
+}
+
+Expression Expression() :
+{
+  Expression expr;
+}
+{
+  expr = ConditionalExpression() { return expr; }
+}
+
+Expression ConditionalExpression() :
+{
+  Expression left;
+  Expression right;
+}
+{
+  ( left = EqualsExpression() ( ( "&&" right = EqualsExpression() { left = new AndExpression( left, right ); } ) | ( "||" right = EqualsExpression() { left = new OrExpression( left, right ); } ) )* )
+  { return left; }
+}
+
+Expression EqualsExpression() :
+{
+  Expression left;
+  Expression right;
+}
+{
+  ( left = RelationalExpression() ( ( "==" right = RelationalExpression() { left = new EqualsExpression( left, right ); } ) | ( "!=" right = RelationalExpression() { left = new NotEqualsExpression( left, right ); } ) )* )
+  { return left; }
+}
+
+Expression RelationalExpression() :
+{
+  Expression left;
+  Expression right;
+}
+{
+  ( left = AdditiveExpression() ( ( ">" right = AdditiveExpression() { left = new GreaterThanExpression( left, right ); } ) | ( ">=" right = AdditiveExpression() { left = new GreaterThanEqualsExpression( left, right ); } ) | ( "<" right = AdditiveExpression() { left = new LessThanExpression( left, right ); } ) | ( "<=" right = AdditiveExpression() { left = new LessThanEqualsExpression( left, right ); } ) )* )
+  { return left; }
+}
+
+Expression AdditiveExpression() :
+{
+  Expression left;
+  Expression right;
+}
+{
+  ( left = MultiplicativeExpression() ( ( "+" right = MultiplicativeExpression() { left = new AddExpression( left, right ); } ) | ( "-" right = MultiplicativeExpression() { left = new SubtractExpression( left, right ); } ) )* )
+  { return left; }
+}
+
+Expression MultiplicativeExpression() :
+{
+  Expression left;
+  Expression right;
+}
+{
+  ( left = PowerExpression() ( ( "*" right = PowerExpression() { left = new MultiplyExpression( left, right ); } ) | ( "/" right = PowerExpression() { left = new DivideExpression( left, right ); } ) | ( "%" right = PowerExpression() { left = new ModExpression( left, right ); } ) )* )
+  { return left; }
+}
+
+Expression PowerExpression() :
+{
+  Expression left;
+  Expression right;
+}
+{
+  ( left = UnaryExpression() ( "^" right = UnaryExpression() { left = new PowerExpression( left, right ); } )* )
+  { return left; }
+}
+
+Expression UnaryExpression() :
+{
+  Expression expr;
+}
+{
+  ( "-" expr = UnaryExpression() { return new NegateExpression( expr ); } ) | ( "!" expr = UnaryExpression() { new NotExpression( expr ); } ) | expr = PrimaryExpression() { return expr; }
+}
+
+Expression PrimaryExpression() :
+{
+  Expression expr;
+  }
+{
+  ( expr = RealExpression() | expr = ImaginaryExpression() | expr = VariableExpression() | expr = AbsExpression() | expr = LogExpression() | "(" expr = Expression() ")" )
+  { return expr; }
+}
+
+Expression AbsExpression() :
+{
+  Expression expr;
+}
+{
+  "|" expr = Expression() "|" { return new AbsExpression( expr ); }
+}
+
+Expression LogExpression() :
+{ Expression expr; }
+{
+  "log" "(" expr = Expression() ")" { return new LogExpression( expr ); }
+}
+
+Expression RealExpression() :
+{}
+{
+  <REAL> { return new RealExpression( Double.parseDouble( token.image ) ); } | <INTEGER> { return new RealExpression( Double.parseDouble( token.image ) ); }
+}
+
+Expression ImaginaryExpression() :
+{
+  String value;
+}
+{
+  <IMAGINARY> { if( token.image.length() == 1 ) { return new ImaginaryExpression( 1 ); } else { return new ImaginaryExpression( Double.parseDouble(token.image.substring(0, token.image.length()-1) ) ); } }
+}
+
+Expression VariableExpression() :
+{}
+{
+  <ID> { return new VariableExpression( token.image ); }
+}
+
+TOKEN :
+{
+  < INTEGER: (["0"-"9"])+ > |
+  < REAL: <INTEGER> "." <INTEGER> > |
+  < IMAGINARY : (<INTEGER> | <REAL>)? "i" >
+}
+
+TOKEN :
+{
+  < ID : ([ "a"-"z", "A"-"Z" ])+ >
+}
