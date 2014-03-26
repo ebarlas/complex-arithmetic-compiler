@@ -125,6 +125,7 @@ public class ParserTest {
             stmt.preAnalyze(context);
             context.commit();
             stmt.postAnalyze(context);
+            context.init();
             stmt.evaluate(context);
             return null;
         } catch(ReturnException e) {

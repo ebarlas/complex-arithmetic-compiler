@@ -26,7 +26,9 @@ public class PowerExpression implements Expression {
 
     @Override
     public Complex evaluate(Context context) {
-        return left.evaluate(context).pow(right.evaluate(context));
+        Complex base = left.evaluate(context);
+        Complex exp = right.evaluate(context);
+        return base.im() == 0.0 && exp.im() == 0.0 ? new Complex(Math.pow(base.re(), exp.re())) : base.pow(exp);
     }
 
 }

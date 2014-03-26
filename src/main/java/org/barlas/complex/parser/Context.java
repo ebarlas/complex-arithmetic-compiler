@@ -30,13 +30,15 @@ public class Context {
 
     public void commit() {
         assertNotCommitted();
-
         symbolTable = new Complex[indexes.size()];
+        committed = true;
+    }
+
+    public void init() {
+        assertCommitted();
         for(int i=0; i<symbolTable.length; i++) {
             symbolTable[i] = Constants.ZERO;
         }
-
-        committed = true;
     }
 
     public Complex[] getSymbolTable() {

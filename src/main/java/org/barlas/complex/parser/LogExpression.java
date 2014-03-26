@@ -17,7 +17,7 @@ public class LogExpression implements Expression {
 
     @Override
     public void postAnalyze(Context context) {
-        expression.preAnalyze(context);
+        expression.postAnalyze(context);
     }
 
     @Override
