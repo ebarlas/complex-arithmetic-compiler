@@ -87,12 +87,16 @@ public class ParserTest {
     @Test
     public void testFibonacciBenchmark() throws ParseException {
         Statement stmt = parse("prev = 0; cur = 1; for(n in 1..25) { tmp = cur; cur = prev + cur; prev = tmp; } return cur;");
+        Context context = new Context();
+        stmt.preAnalyze(context);
+        context.commit();
+        stmt.postAnalyze(context);
 
         for(int i=0; i<5; i++) {
             long time = System.currentTimeMillis();
             for(int j=0; j<10000; j++) {
                 try {
-                    stmt.evaluate(new Context());
+                    stmt.evaluate(context);
                 } catch(ReturnException ignore) {}
             }
             long elapsed = System.currentTimeMillis() - time;
@@ -116,7 +120,12 @@ public class ParserTest {
 
     private Complex[] evaluate(String input) throws ParseException {
         try {
-            parse(input).evaluate(new Context());
+            Statement stmt = parse(input);
+            Context context = new Context();
+            stmt.preAnalyze(context);
+            context.commit();
+            stmt.postAnalyze(context);
+            stmt.evaluate(context);
             return null;
         } catch(ReturnException e) {
             return e.getValues();

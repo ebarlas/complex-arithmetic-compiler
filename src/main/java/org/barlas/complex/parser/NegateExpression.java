@@ -10,6 +10,17 @@ public class NegateExpression implements Expression {
         this.expression = expression;
     }
 
+    @Override
+    public void preAnalyze(Context context) {
+        expression.preAnalyze(context);
+    }
+
+    @Override
+    public void postAnalyze(Context context) {
+        expression.preAnalyze(context);
+    }
+
+    @Override
     public Complex evaluate(Context context) {
         return new Complex(expression.evaluate(context).neg());
     }

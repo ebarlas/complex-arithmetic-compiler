@@ -10,6 +10,17 @@ public class NotExpression implements Expression {
         this.expression = expression;
     }
 
+    @Override
+    public void preAnalyze(Context context) {
+        expression.preAnalyze(context);
+    }
+
+    @Override
+    public void postAnalyze(Context context) {
+        expression.preAnalyze(context);
+    }
+
+    @Override
     public Complex evaluate(Context context) {
         return expression.evaluate(context).re() == 0.0 ? Constants.TRUE : Constants.FALSE;
     }

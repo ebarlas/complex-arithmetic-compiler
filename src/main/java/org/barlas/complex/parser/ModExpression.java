@@ -12,6 +12,19 @@ public class ModExpression implements Expression {
         this.right = right;
     }
 
+    @Override
+    public void preAnalyze(Context context) {
+        left.preAnalyze(context);
+        right.preAnalyze(context);
+    }
+
+    @Override
+    public void postAnalyze(Context context) {
+        left.postAnalyze(context);
+        right.postAnalyze(context);
+    }
+
+    @Override
     public Complex evaluate(Context context) {
         return new Complex(left.evaluate(context).re() % right.evaluate(context).re());
     }

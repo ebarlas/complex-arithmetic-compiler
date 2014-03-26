@@ -7,14 +7,53 @@ import java.util.Map;
 
 public class Context {
 
-    private Map<String, Complex> map = new HashMap<String, Complex>();
+    private Map<String, Integer> indexes = new HashMap<String, Integer>();
+    private Complex[] symbolTable;
 
-    public void put(String s, Complex obj) {
-        map.put(s, obj);
+    private boolean committed = false;
+
+    public Integer getIndex(String name) {
+        return indexes.get(name);
     }
 
-    public Complex get(String s) {
-        return map.get(s);
+    public int getAndSetIndex(String name) {
+        assertNotCommitted();
+
+        Integer index = indexes.get(name);
+        if(index == null) {
+            index = indexes.size();
+            indexes.put(name, index);
+        }
+
+        return index;
+    }
+
+    public void commit() {
+        assertNotCommitted();
+
+        symbolTable = new Complex[indexes.size()];
+        for(int i=0; i<symbolTable.length; i++) {
+            symbolTable[i] = Constants.ZERO;
+        }
+
+        committed = true;
+    }
+
+    public Complex[] getSymbolTable() {
+        assertCommitted();
+        return symbolTable;
+    }
+
+    private void assertCommitted() {
+        if(!committed) {
+            throw new IllegalStateException();
+        }
+    }
+
+    private void assertNotCommitted() {
+        if(committed) {
+            throw new IllegalStateException();
+        }
     }
 
 }

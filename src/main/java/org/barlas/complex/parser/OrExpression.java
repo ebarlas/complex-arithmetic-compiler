@@ -12,6 +12,19 @@ public class OrExpression implements Expression {
         this.right = right;
     }
 
+    @Override
+    public void preAnalyze(Context context) {
+        left.preAnalyze(context);
+        right.preAnalyze(context);
+    }
+
+    @Override
+    public void postAnalyze(Context context) {
+        left.postAnalyze(context);
+        right.postAnalyze(context);
+    }
+
+    @Override
     public Complex evaluate(Context context) {
         return left.evaluate(context).re() != 0.0 || right.evaluate(context).re() != 0.0 ? Constants.TRUE : Constants.FALSE;
     }

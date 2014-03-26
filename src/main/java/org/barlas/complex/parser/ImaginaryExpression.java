@@ -10,6 +10,13 @@ public class ImaginaryExpression implements Expression {
         this.value = new Complex(0, value);
     }
 
+    @Override
+    public void preAnalyze(Context context) {}
+
+    @Override
+    public void postAnalyze(Context context) {}
+
+    @Override
     public Complex evaluate(Context context) {
         return value;
     }

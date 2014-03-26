@@ -10,6 +10,13 @@ public class RealExpression implements Expression {
         this.value = new Complex(value);
     }
 
+    @Override
+    public void preAnalyze(Context context) {}
+
+    @Override
+    public void postAnalyze(Context context) {}
+
+    @Override
     public Complex evaluate(Context context) {
         return value;
     }
