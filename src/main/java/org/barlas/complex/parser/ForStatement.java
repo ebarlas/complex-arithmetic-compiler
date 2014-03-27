@@ -2,17 +2,18 @@ package org.barlas.complex.parser;
 
 import ORG.netlib.math.complex.Complex;
 
-public class ForStatement implements Statement {
+public class ForStatement extends AbstractNode implements Statement {
 
     private final String name;
     private final int from;
     private final int to;
     private final Statement statement;
 
-    private Complex[] symbolTable;
+    private Complex[] array;
     private int index;
 
     public ForStatement(String name, int from, int to, Statement statement) {
+        super(statement);
         this.name = name;
         this.from = from;
         this.to = to;
@@ -20,22 +21,22 @@ public class ForStatement implements Statement {
     }
 
     @Override
-    public void preAnalyze(Context context) {
-        index = context.getAndSetIndex(name);
-        statement.preAnalyze(context);
+    public void compile(SymbolTable symbolTable) {
+        index = symbolTable.getIndex(name);
+        super.compile(symbolTable);
     }
 
     @Override
-    public void postAnalyze(Context context) {
-        symbolTable = context.getSymbolTable();
-        statement.postAnalyze(context);
+    public void compile(Variables variables) {
+        array = variables.getArray();
+        super.compile(variables);
     }
 
     @Override
-    public void evaluate(Context context) {
+    public void evaluate() {
         for(int i=from; i<=to; i++) {
-            symbolTable[index] = new Complex(i);
-            statement.evaluate(context);
+            array[index] = new Complex(i);
+            statement.evaluate();
         }
     }
 }

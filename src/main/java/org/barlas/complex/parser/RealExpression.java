@@ -2,7 +2,7 @@ package org.barlas.complex.parser;
 
 import ORG.netlib.math.complex.Complex;
 
-public class RealExpression implements Expression {
+public class RealExpression extends AbstractNode implements Expression {
 
     private final Complex value;
 
@@ -11,13 +11,7 @@ public class RealExpression implements Expression {
     }
 
     @Override
-    public void preAnalyze(Context context) {}
-
-    @Override
-    public void postAnalyze(Context context) {}
-
-    @Override
-    public Complex evaluate(Context context) {
+    public Complex evaluate() {
         return value;
     }
 }

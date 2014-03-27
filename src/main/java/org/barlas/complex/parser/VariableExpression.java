@@ -2,11 +2,11 @@ package org.barlas.complex.parser;
 
 import ORG.netlib.math.complex.Complex;
 
-public class VariableExpression implements Expression {
+public class VariableExpression extends AbstractNode implements Expression {
 
     private final String name;
 
-    private Complex[] symbolTable;
+    private Complex[] array;
     private int index;
 
     public VariableExpression(String name) {
@@ -14,17 +14,19 @@ public class VariableExpression implements Expression {
     }
 
     @Override
-    public void preAnalyze(Context context) {
-        index = context.getAndSetIndex(name);
+    public void compile(SymbolTable symbolTable) {
+        index = symbolTable.getIndex(name);
+        super.compile(symbolTable);
     }
 
     @Override
-    public void postAnalyze(Context context) {
-        symbolTable = context.getSymbolTable();
+    public void compile(Variables variables) {
+        array = variables.getArray();
+        super.compile(variables);
     }
 
     @Override
-    public Complex evaluate(Context context) {
-        return symbolTable[index];
+    public Complex evaluate() {
+        return array[index];
     }
 }

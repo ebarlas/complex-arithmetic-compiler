@@ -2,34 +2,35 @@ package org.barlas.complex.parser;
 
 import ORG.netlib.math.complex.Complex;
 
-public class AssignmentStatement implements Statement {
+public class AssignmentStatement extends AbstractNode implements Statement {
 
     private final String name;
     private final Expression expression;
 
-    private Complex[] symbolTable;
+    private Complex[] array;
     private int index;
 
     public AssignmentStatement(String name, Expression expression) {
+        super(expression);
         this.name = name;
         this.expression = expression;
     }
 
     @Override
-    public void preAnalyze(Context context) {
-        index = context.getAndSetIndex(name);
-        expression.preAnalyze(context);
+    public void compile(SymbolTable symbolTable) {
+        index = symbolTable.getIndex(name);
+        super.compile(symbolTable);
     }
 
     @Override
-    public void postAnalyze(Context context) {
-        symbolTable = context.getSymbolTable();
-        expression.postAnalyze(context);
+    public void compile(Variables variables) {
+        array = variables.getArray();
+        super.compile(variables);
     }
 
     @Override
-    public void evaluate(Context context) {
-        symbolTable[index] = expression.evaluate(context);
+    public void evaluate() {
+        array[index] = expression.evaluate();
     }
 
 }

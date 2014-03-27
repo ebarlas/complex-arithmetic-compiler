@@ -2,8 +2,10 @@ package org.barlas.complex.parser;
 
 public interface Node {
 
-    void preAnalyze(Context context);
+    Node[] getChildren();
 
-    void postAnalyze(Context context);
+    void compile(SymbolTable symbolTable);
+
+    void compile(Variables variables);
 
 }

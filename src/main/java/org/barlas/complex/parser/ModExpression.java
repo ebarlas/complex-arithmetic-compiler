@@ -2,31 +2,20 @@ package org.barlas.complex.parser;
 
 import ORG.netlib.math.complex.Complex;
 
-public class ModExpression implements Expression {
+public class ModExpression extends AbstractNode implements Expression {
 
     private final Expression left;
     private final Expression right;
 
     public ModExpression(Expression left, Expression right) {
+        super(left, right);
         this.left = left;
         this.right = right;
     }
 
     @Override
-    public void preAnalyze(Context context) {
-        left.preAnalyze(context);
-        right.preAnalyze(context);
-    }
-
-    @Override
-    public void postAnalyze(Context context) {
-        left.postAnalyze(context);
-        right.postAnalyze(context);
-    }
-
-    @Override
-    public Complex evaluate(Context context) {
-        return new Complex(left.evaluate(context).re() % right.evaluate(context).re());
+    public Complex evaluate() {
+        return new Complex(left.evaluate().re() % right.evaluate().re());
     }
 
 }
